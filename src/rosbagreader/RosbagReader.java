@@ -153,10 +153,10 @@ public class RosbagReader {
 
     public void parseBag(RosbagMessageDataParser parser) throws IOException, UnexpectedEndOfRosbagFileException, InvalidRosbagFormatException, RequiredFieldMissingRosbagException, InvalidFieldValueRosbagException {
        //TODO: to increase efficiency, rework so that BufferedInputStream can be used.
-        Integer messageSize = 0;
+        ReaderSupport.IntWrapper messageSize = new ReaderSupport.IntWrapper();
         while (tryReadLEInteger(input, messageSize)) {
             //Possible solution: write method: bool readIntOrNothing(Integer result)
-            Map<String, byte[]> header = readHeader(messageSize); // Passes the header size to the readHeader method
+            Map<String, byte[]> header = readHeader(messageSize.i); // Passes the header size to the readHeader method
             int op = getOpCode(header);
             String topic;
             switch (op) {
@@ -432,7 +432,7 @@ public class RosbagReader {
      * @throws IOException
      * @throws UnexpectedEndOfRosbagFileException 
      */
-    private boolean tryReadLEInteger(InputStream s, Integer result) throws IOException, UnexpectedEndOfRosbagFileException {
+    private boolean tryReadLEInteger(InputStream s, ReaderSupport.IntWrapper result) throws IOException, UnexpectedEndOfRosbagFileException {
         try {
             return readerSupport.tryReadLEInteger(s, result);
         } catch (UnexpectedEndOfFileException ex) {
