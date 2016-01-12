@@ -152,10 +152,8 @@ public class RosbagReader {
     Map<Integer, String> topics = new HashMap<>();
 
     public void parseBag(RosbagMessageDataParser parser) throws IOException, UnexpectedEndOfRosbagFileException, InvalidRosbagFormatException, RequiredFieldMissingRosbagException, InvalidFieldValueRosbagException {
-       //TODO: to increase efficiency, rework so that BufferedInputStream can be used.
         ReaderSupport.IntWrapper messageSize = new ReaderSupport.IntWrapper();
         while (tryReadLEInteger(input, messageSize)) {
-            //Possible solution: write method: bool readIntOrNothing(Integer result)
             Map<String, byte[]> header = readHeader(messageSize.i); // Passes the header size to the readHeader method
             int op = getOpCode(header);
             String topic;
