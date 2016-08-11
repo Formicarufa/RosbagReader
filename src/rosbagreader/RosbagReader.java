@@ -7,15 +7,12 @@ import java.io.BufferedInputStream;
 import support.ReaderSupport;
 import rosbagreader.exceptions.RequiredFieldMissingRosbagException;
 import rosbagreader.exceptions.UnexpectedEndOfRosbagFileException;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import rosbagreader.exceptions.InvalidFieldValueRosbagException;
 import rosbagreader.exceptions.InvalidRosbagFormatException;
 import rosbagreader.exceptions.UnexpectedEndOfFileException;
@@ -26,6 +23,25 @@ import rosbagreader.exceptions.UnexpectedEndOfFileException;
  * User must provide RosbagMessageDataParser
  * which reads the message content based on 
  * topic and size of the message.
+  * The example use of the library:
+  * <pre>
+ * {@code 
+ * RosbagReader r = new RosbagReader(inputStream);
+ *  r.parseBag(new RosbagMessageDataParser() {
+ *        
+ *        .@Override
+ *        public void parseMessageData(RosMessageData rmd) throws IOException, UnexpectedEndOfRosbagFileException {
+ *            if ("topicName".equals(rmd.getTopic()) {
+ *                RosStandardMessageHeader header = rmd.readMessageHeader();
+ *                long time = header.stamp.getTimeAsNanos();
+ *                float val = rmd.readFloat();
+ *                //...
+ *            }
+ *            //You do not have to parse all topics 
+ *            //the reader will skip the rmd.getBytesLeft() bytes
+ *        }
+ *}); }
+ * </pre>
  * @author Tomas Prochazka
  *
  */
@@ -75,7 +91,7 @@ public class RosbagReader {
     }
 
     /**
-     * Reads the record header and returns the fields as a name -> value hash map.
+     * Reads the record header and returns the fields as a name - value hash map.
      *
      * @param bytesCount Length of the header
      * @return map of field names and field values
@@ -151,6 +167,15 @@ public class RosbagReader {
 
     Map<Integer, String> topics = new HashMap<>();
 
+    /**
+     * The method that actually reads the data.
+     * @param parser Callback that is invoked for every message in the file.
+     * @throws IOException
+     * @throws UnexpectedEndOfRosbagFileException
+     * @throws InvalidRosbagFormatException
+     * @throws RequiredFieldMissingRosbagException
+     * @throws InvalidFieldValueRosbagException 
+     */
     public void parseBag(RosbagMessageDataParser parser) throws IOException, UnexpectedEndOfRosbagFileException, InvalidRosbagFormatException, RequiredFieldMissingRosbagException, InvalidFieldValueRosbagException {
         ReaderSupport.IntWrapper messageSize = new ReaderSupport.IntWrapper();
         while (tryReadLEInteger(input, messageSize)) {
@@ -267,7 +292,7 @@ public class RosbagReader {
     private Map<String, byte[]> bagHeader;
 
     /**
-     * The meta-data of the opened ROS Bag file as a [name -> byte value]
+     * The meta-data of the opened ROS Bag file as a [name - byte value]
      * hashmap. It is initialized and loaded in the constructor of the RosbagReader.
      *
      * @return

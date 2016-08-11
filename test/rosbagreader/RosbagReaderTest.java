@@ -24,7 +24,7 @@ import rosbagreader.exceptions.UnexpectedEndOfRosbagFileException;
 
 /**
  *
- * @author Tomik
+ * @author Tomas Prochazka
  */
 public class RosbagReaderTest {
 

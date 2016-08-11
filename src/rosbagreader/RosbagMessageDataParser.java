@@ -9,7 +9,7 @@ import java.io.IOException;
 import rosbagreader.exceptions.UnexpectedEndOfRosbagFileException;
 
 /**
- *
+* An interface that the user of the RosbagReader class needs to implement
  * @author Tomas Prochazka
  */
 public interface RosbagMessageDataParser {
